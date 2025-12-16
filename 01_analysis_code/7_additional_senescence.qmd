@@ -1,0 +1,485 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+execute:
+    freeze: false
+    cache: false
+---
+
+# Effect of leaf senescence on the timing of leaf unfolding
+
+This additional analysis explores the effect of leaf colouring on the timing of leaf unfolding. The analysis additionally includes the DOY of leaf colouring of the previous year as a fixed effect in the best models of leaf unfolding for beech, larch and linden. I compare shifts in model performance (cAIC, RMSE), significance and direction of effects between best models with the original data set (best model), best models with a reduced data set (best model reduced) and best models updated with the DOY of leaf colouring with a reduced data set (best model senescence). The data set is reduced because of missing pairs between the DOY of leaf unfolding and the DOY of leaf colouring of the previous year.
+
+```{r load-libraries, include=FALSE}
+location <- paste0(getwd())
+source(paste0("../00_helpers/setup.R")) #common libraries and custom functions
+source(paste0("../00_helpers/species_and_phases.R"))
+
+lib_senescence <- c(
+  "nlme",
+  "cAIC4",
+  "broom.mixed",
+  "performance",
+  "ggeffects",
+  "ggtext",
+  "ggh4x"
+  )
+package_fun(lib_senescence, "senescence")
+
+theme_nature <- function() {
+  theme(
+    legend.position = "none",
+    axis.text.x = element_text(size = 11, vjust = 0.5, hjust = 0.5),
+    axis.text.y = element_blank(),
+    axis.ticks = element_blank(),
+    strip.background = element_rect(fill = NA, colour = NA, size = 1),
+    panel.spacing = unit(0, "lines"),
+    strip.text = element_markdown(hjust = 0),
+    plot.title = element_text(size = 11),
+    axis.title.x = element_text(size = 11),
+    axis.title.y = element_blank(), # remove axis title to further reduce space between panels
+    plot.margin = margin(t = 0, b = 4, r = -5, l = 0),
+    panel.border = element_rect(color = "#E8E8E8", fill = NA, linewidth=1.5),
+    panel.grid.minor = element_blank()
+  )
+}
+
+fun_get_caic <- function(x) {
+  tryCatch({
+    cAIC(x)$caic # Accessing the specific value from the cAIC function
+  }, error = function(e) {
+    NA # Return NA or some indication of failure for models that cause an error
+  })
+}
+
+fun_get_log <- function(x) {
+  tryCatch({
+    cAIC(x)$loglikelihood
+  }, error = function(e) {
+    NA # Return NA or some indication of failure for models that cause an error
+  })
+}
+
+# extract coefficients with confidence intervals
+safe_tidy <- possibly(
+  ~ broom.mixed::tidy(.x, effects="fixed", conf.int = TRUE) %>% mutate(model_name = .y), 
+  otherwise = NULL
+)
+
+senescense_tab_fun <- function(data){
+  tab <- data %>%
+    arrange(SPECIES_SHORT, model_label) %>% 
+    mutate_if(is.numeric, signif, 5) %>%
+    datatable(rownames = FALSE, filter = 'top', options = list(scrollX = TRUE, dom = 'Bfrtip', pageLength = 10))
+  tab
+}
+
+random_simple <- as.formula(~ 1 | METEO_ID)
+autoregression_simple <- corAR1(form = ~ year | METEO_ID)
+```
+
+```{r add-leaf-colouring, include=FALSE}
+data <- list.files(path = paste0(path_own_data),
+                     pattern = "^data_unscaled_.*\\.rds$",
+                     full.names = TRUE) %>%
+  setNames(nm = sapply(basename(.), function(x) {
+    parts <- unlist(strsplit(x, "_"))
+    paste(parts[1:2], collapse = "_")
+  })) %>%
+  lapply(readRDS) %>% 
+  bind_rows() %>%
+  # filter complete cases without removing leaf colouring lag
+  filter(complete.cases(.)) %>%
+  mutate(RELIEF = factor(RELIEF),
+         SOCIAL_SITUATION = factor(SOCIAL_SITUATION)) %>% 
+  rename_fun()
+```
+
+## Model fitting
+
+The fixed effects were fitted by deparsing the terms stored in the original model object and expanding them with the first order orthogonal polynomial of the DOY of leaf colouring of the previous year using a string operation. I then used the original and adapted fixed effects and fitted models with a data set that only includes complete pairs of the DOY of leaf unfolding and the DOY of leaf colouring of the previous year (reduced data set).
+
+```{r load-best, include=FALSE}
+best <- list.files(path = paste0(path_output_data),
+                   pattern = "^best_con",
+                   full.names = TRUE) %>%
+    setNames(nm = sapply(basename(.), function(x) {
+    parts <- unlist(strsplit(x, "_"))
+    paste(parts[1:5], collapse = "_")
+  })) %>%
+  lapply(readRDS)
+
+best_models <- best %>%
+  # transform list into data frame
+  enframe(name = "model_name", value = "models") %>%
+  unnest_longer(models) %>% 
+  rename(submodel_name = models_id, model = models) %>%
+  # filter best model and remove spruce
+  filter(str_detect(submodel_name, "_1"),
+         !str_detect(model_name, "PA")) %>%
+  mutate(model_name = str_sub(model_name, 1,11),
+         SPECIES_SHORT = str_sub(model_name, 10, 11)) %>%
+  select(-model_name) %>%
+  rename(model_name = submodel_name) %>% 
+  # extract fixed effects for to use in senescense models
+  mutate(fixed_effects = map(model, ~deparse(.x[["terms"]]) %>% paste(collapse = " ")) %>% as.character()) # extract fixed effects
+```
+
+```{r run-models, filename="Pull original fixed effects and add leaf colouring.", include=TRUE, echo=TRUE}
+senescence_models <- data %>%
+  group_by(SPECIES_SHORT) %>%
+  nest() %>%
+  filter(!str_detect(SPECIES_SHORT, "PA")) %>% 
+  mutate(fixed_effects_org = case_when(
+           SPECIES_SHORT == "FS" ~ best_models[["fixed_effects"]][[1]],
+           SPECIES_SHORT == "LD" ~ best_models[["fixed_effects"]][[2]],
+           SPECIES_SHORT == "TC" ~ best_models[["fixed_effects"]][[3]],
+           TRUE ~ NA_character_),
+         fixed_effects_sen = paste0(fixed_effects_org, " + LEAF_COLOURING_LAG")) %>%
+  pivot_longer(cols = fixed_effects_org:fixed_effects_sen,
+               names_to = "model_name",
+               values_to = "fixed_effects") %>%
+  rowwise() %>%
+  mutate(fixed_effects = list(as.formula(fixed_effects))) %>%
+  ungroup() %>%
+  mutate(model_result = map2(fixed_effects, data, ~ tryCatch(
+           eval(bquote(
+             lme(fixed = .(as.formula(.x)),
+                 random = ~ 1 | METEO_ID,
+                 correlation = corAR1(form = ~ year | METEO_ID),
+                 data = .y, method = "ML", na.action = na.omit))),
+           error = function(e) e))) %>%
+  mutate(model = map(model_result, ~ if (inherits(.x, "error")) NULL else .x),
+         error_message = map_chr(model_result, ~ if (inherits(.x, "error")) .x$message else NA_character_))
+```
+
+```{r extract-results, filename="Extract results.", include = TRUE, echo = TRUE}
+fun_process_models <- function(data){
+  data %>%
+  filter(map_lgl(model, ~ !is.null(.x))) %>% # filter failed models
+  mutate(tidy = map2(model, model_name, safe_tidy), # extract coefficients and p-values
+         augment = map2(model, model_name, ~{ # extract fitted values, residuals, fixed effects without data that is not contained in the respective model
+           terms <- all.vars(formula(.x))[-1]  # Extract terms and remove response variable
+           broom.mixed::augment(.x) %>%
+           select(all_of(terms), METEO_ID, year, .fitted, .resid, .fixed) %>%
+           mutate(model_name = .y)
+           }),
+         terms = map(model, ~all.vars(formula(.x))[-1]),
+         std_random = map(model, ~safely(~ {
+           intervals(.x)$reStruct %>%
+             unlist() %>%
+             as.data.frame() %>%
+             rename(VALUE = 1) %>%
+             rownames_to_column("PARAMETER")})(.x)$result), # calculate and extract standard deviation of random effects (variance of random intercept)
+         res_random = (res_random = map(model, ~.x$sigma)), # extract residual variance of random effects
+         phi = map(model, ~{ # extract autoregressive parameter
+           ci = intervals(.x)$corStruct
+           tibble(phi = as.numeric(ci[1, "est."]),
+                  lower = ci[1, "lower"],
+                  upper = ci[1, "upper"])}),
+         RMSE = map(model, ~sqrt(mean(.x$residuals^2))), # extract RMSE
+         AIC = map(model, ~AIC(.x)), # extract AIC
+         logLik = map(model, ~as.numeric(logLik(.x))), # extract logLik
+         cAIC = map(model, ~fun_get_caic(.x)), # extract cAIC
+         clogLik = map(model, ~fun_get_log(.x)) # extract clogLik
+         ) %>%
+    unnest(c(AIC, logLik, RMSE,
+           cAIC, clogLik)) %>% 
+    mutate(coef = map(model, ~coef(.x)),
+           terms_count = map(coef, ~ncol(.x)-1),
+           collinearity = map(model, ~check_collinearity(.x)),
+           RMSE = as.numeric(RMSE))
+}
+
+fun_process_output <- function(model_data){
+  # extract selection parameters
+  selection_parameters <- model_data %>% 
+    select(-tidy,
+      #-augment, 
+      -terms) %>% 
+    mutate(calls = map(model, ~deparse(.x[["call"]]) %>% paste(collapse = " ")) %>% as.character(), # extract calls
+           fixed_effects = map(model, ~deparse(.x[["terms"]]) %>% paste(collapse = " ")) %>% as.character(), # extract fixed effects
+           random_effects = map(model, ~.x[["call"]][["random"]]) %>% as.character()) %>% # extract random effects
+    select(SPECIES_SHORT, model_name, model_label, RMSE, AIC, logLik, terms_count, calls, fixed_effects, random_effects,
+           cAIC, clogLik) %>%
+    unnest(c(RMSE, AIC, logLik, terms_count,
+             cAIC, clogLik
+             ))
+
+  # extract coefficients and p-values
+  tidy <- model_data %>% select(tidy, model_label, SPECIES_SHORT) %>% unnest(tidy)
+  
+  # extract fitted, fixed and residuals
+  augment <- model_data %>% select(augment, model_label, SPECIES_SHORT) %>% unnest(augment)
+  
+  # extract standard deviation of random effects
+  std_random <- model_data %>% select(model_name, model_label, std_random, SPECIES_SHORT) %>% unnest(std_random) %>% pivot_wider(names_from = PARAMETER, values_from = VALUE)
+  
+  res_random <- model_data %>% select(model_name, model_label, res_random, SPECIES_SHORT) %>% mutate(res_random = as.numeric(res_random))
+  
+  phi <- model_data %>% select(model_name, model_label, phi, SPECIES_SHORT) %>% unnest(phi)
+  
+  multicol <- model_data  %>% select(model_name, model_label, collinearity, SPECIES_SHORT) %>% unnest(collinearity)
+
+  return(list(selection_parameters = selection_parameters,
+              tidy = tidy, augment = augment,
+              std_random = std_random, res_random = res_random, phi = phi, multicol = multicol))
+}
+
+senescence_models_processed <- senescence_models %>%
+  bind_rows(best_models %>% select(-fixed_effects)) %>%
+  mutate(model_label = case_when(model_name %like% "best" ~ "Best model",
+                                 model_name %like% "org" ~ "Best model reduced",
+                                 model_name %like% "sen" ~ "Best model senescence")) %>% 
+  fun_process_models() %>% 
+  fun_process_output()
+```
+
+```{r debug-ld, eval=FALSE}
+# the cAIC cannot be extracted for models using a reduced data set AND including relief position or social situation with the DOY of leaf colouring of the previous year.
+fixed_ld <- as.formula(senescence_models[["fixed_effects"]][[4]])
+
+data_ld <- data %>% filter(SPECIES_SHORT == "LD")
+
+fixed_ld01 <- as.formula(doy ~ CDD_conservative + poly(AWC, degree = 2) + poly(STAND_HEIGHT, 
+    degree = 2) + SOCIAL_SITUATION + CDD_conservative:poly(GDD_conservative, 
+    degree = 2) + 1 + poly(GDD_conservative, degree = 2) + poly(LEAF_COLOURING_LAG, 
+    2))
+
+fixed_ld10 <- as.formula(doy ~ CDD_conservative + poly(AWC, degree = 2) + poly(STAND_HEIGHT, 
+    degree = 2) + RELIEF + CDD_conservative:poly(GDD_conservative, 
+    degree = 2) + 1 + poly(GDD_conservative, degree = 2) + poly(LEAF_COLOURING_LAG, 
+    2))
+
+fixed_ld00 <- as.formula(doy ~ CDD_conservative + poly(AWC, degree = 2) + poly(STAND_HEIGHT, 
+    degree = 2) + CDD_conservative:poly(GDD_conservative, 
+    degree = 2) + 1 + poly(GDD_conservative, degree = 2) + poly(LEAF_COLOURING_LAG, 
+    2))
+
+fixed_ld11 <- as.formula(doy ~ CDD_conservative*poly(GDD_conservataive, degree=2) + poly(AWC, degree = 2) + poly(STAND_HEIGHT, 
+    degree = 2) + RELIEF + SOCIAL_SITUATION + CDD_conservative:poly(GDD_conservative, 
+    degree = 2) + 1 + poly(GDD_conservative, degree = 2))
+
+fixed_ld11 <- as.formula(doy ~ CDD_conservative*poly(GDD_conservative, degree=2) + poly(AWC, degree = 2) + poly(STAND_HEIGHT, 
+    degree = 2) + RELIEF + SOCIAL_SITUATION)
+
+
+model_ld <- lme(fixed_ld11, data=data_ld, correlation = corAR1(form = ~ year | METEO_ID), random = ~ 1 | METEO_ID, method="ML")
+
+cAIC(model_ld)
+```
+
+```{r predict-effects}
+predictions <- senescence_models %>%
+  bind_rows(best_models %>% select(-fixed_effects)) %>%
+  mutate(model_label = case_when(model_name %like% "best" ~ "Best model",
+                                 model_name %like% "org" ~ "Best model reduced",
+                                 model_name %like% "sen" ~ "Best model senescence")) %>% 
+  select(-model_result) %>% 
+  mutate(terms = map(model, ~ attr(.x$terms, "term.labels"))) %>%
+  unnest(terms) %>%
+  filter(!terms %like% ":") %>% # remove interaction terms
+  mutate(terms = str_remove_all(terms, "poly|\\(|\\)|degree|=|\\d+|\\s|,"),
+         prediction = map2(model, terms, ~ tryCatch(
+           predict_response(.x, terms = glue::glue("{.y} [all]")) %>% as.data.frame(),
+           error = function(e) NULL))) %>%
+  select(SPECIES_SHORT, model_name, model_label, prediction, terms) %>% 
+  filter(!map_lgl(prediction, is.null)) %>%  # using a regular filter does not work because dplyr returns a single logical value
+  mutate(DATA_TYPE = map_lgl(prediction, ~ is.data.frame(.x) && attr(.x, "x.is.factor") == "1")) %>% #identify predictions with categorical variables
+  mutate(prediction = if_else(DATA_TYPE, map(prediction, ~ .x %>%
+                                               mutate(factor = as.character(x)) %>%
+                                               mutate(x = row_number())),
+                              prediction)) %>% 
+  select(-DATA_TYPE) %>%
+  unnest(cols=prediction) %>%
+  mutate(Label = label_fun_sim(terms, col = "short"))
+```
+
+## Results
+
+```{r tbl-data}
+#| tbl-cap: Number ob observations in best models with the original and the reduced data set as well as models fitted with the DOY of leaf colouring.
+n_data <- senescence_models %>%
+  bind_rows(best_models %>% select(-fixed_effects)) %>%
+  mutate(n_data = map_int(model, ~nrow(.x$data)),
+         model_label = case_when(model_name %like% "best" ~ "Best model",
+                                 model_name %like% "org" ~ "Best model reduced",
+                                 model_name %like% "sen" ~ "Best model senescence")) %>%
+  select(SPECIES_SHORT, model_label, n_data)
+
+tbl <- n_data %>%
+  arrange(SPECIES_SHORT, model_label) %>% 
+  datatable(rownames = FALSE)
+tbl
+```
+
+```{r fig-selection-parameters, fig.height=6, fig.width=6, echo=FALSE, fig.cap = "Comparison of AIC, cAIC and RMSE."}
+ggplot(senescence_models_processed[["selection_parameters"]] %>% pivot_longer(cols = c(AIC, cAIC, RMSE), names_to = "PARAMETER", values_to = "VALUE"),
+       aes(x = model_label, y = VALUE)) +
+  geom_point() +
+  facet_wrap(~PARAMETER + SPECIES_SHORT, scales = "free_y") +
+  labs(x = "Model name", y = "Value") +
+  theme_report(angle = 90)
+```
+
+```{r tbl-selection-parameters, echo=FALSE}
+#| tbl-cap: RMSE, cAIC and number of terms.
+senescense_tab_fun(senescence_models_processed[["selection_parameters"]] %>% select(SPECIES_SHORT, model_label, fixed_effects, everything(), -c(AIC, logLik, calls, random_effects)))
+```
+
+```{r fig-coefficients, fig.height= 10, fig.width=8, echo=FALSE, fig.cap = "Comparison of p-values of fixed effects."}
+ggplot(senescence_models_processed[["tidy"]], aes(x = model_label, y = term, fill = p.value < 0.1)) +
+    geom_tile() +
+    geom_tile(color = "#B3B3B3", linewidth = 0.5, fill = NA) +
+    scale_fill_manual(values = c("TRUE" = "#A2CD5A", "FALSE" = "#CDC1C5"),
+                      labels = c("FALSE" = "not significant", "TRUE" = "significant"),
+                      na.value = NA) +
+  facet_wrap(~ SPECIES_SHORT)+
+    xlab("Model") +
+    ylab("Parameter") +
+    theme_report(angle = 90, legend.position = "top")
+```
+
+```{r tbl-coefficients-fixed}
+#| tbl-cap: Fixed effect coefficients and p-values.
+senescense_tab_fun(senescence_models_processed[["tidy"]] %>% filter(effect == "fixed") %>% arrange(SPECIES_SHORT, term, model_name) %>% select(SPECIES_SHORT, model_label, term, conf.low, estimate, conf.high, everything(), -c(effect, model_name)))
+```
+
+```{r fig-effects, fig.height=8, fig.width=9, fig.cap="Panels show the estimated effect of predictors present in species-specific best models when the DOY of leaf colouring of the previous year is and is not included. Estimates are adjusted for the influence of other included covariates at their mean values. Shaded areas and error bars represent 95% confidence intervals."}
+ggplot(predictions %>%
+    filter(!is.na(x)), aes(x = x, y = predicted, ymin = conf.low, ymax = conf.high, 
+                 color = SPECIES_SHORT, fill = SPECIES_SHORT)) + 
+  geom_line(size = 1, aes(group = interaction(SPECIES_SHORT, model_label), linetype = model_label)) +
+  geom_ribbon(aes(ymin = conf.low, ymax = conf.high, group = interaction(SPECIES_SHORT, model_label)),
+              alpha = 0.3, color = NA, fill = "grey") +
+  facet_wrap(~ terms, scales = "free_x", strip.position="bottom") +
+  labs(x = "", y = "DOY") +
+  coord_cartesian(ylim = c(70, 130)) +
+  species_color_scale("short")+
+  theme_report(legend.position = "top", hjust = 0.5) +
+  theme(
+  strip.background = element_rect(fill = NA, colour = NA, size = 1),
+  strip.placement = "outside",
+  panel.spacing = unit(1, "lines"),
+  axis.title.x = element_blank(),
+  axis.text.x = element_text(margin = margin(t = 3)),
+  axis.ticks.length.x = unit(0.2, "cm"),
+  panel.border = element_rect(color = "#E8E8E8", fill = NA, linewidth=1.5))
+```
+
+```{r fig-effect-senescence, fig.width = 4, fig.height = 4, fig.cap="Estimated effect of leaf colouring in species-specific best models. Estimates are adjusted for the influence of other included covariates at their mean values. Shaded areas and error bars represent 95% confidence intervals."}
+ggplot(predictions %>%
+    filter(!is.na(x),
+           terms %like% "COLOURING"#,
+           #SPECIES_SHORT == "FS"
+           ), aes(x = x, y = predicted, ymin = conf.low, ymax = conf.high, 
+                 color = SPECIES_SHORT, fill = SPECIES_SHORT)) + 
+  geom_line(size = 1, aes(group = interaction(SPECIES_SHORT, model_name))) +
+  geom_ribbon(aes(ymin = conf.low, ymax = conf.high, group = interaction(SPECIES_SHORT, model_name)),
+              alpha = 0.3, color = NA, fill = "grey") +
+  labs(x = "Leaf colouring (DOY)", y = "Day of year") +
+  coord_cartesian(ylim = c(80, 140))+ # specified as coord carthesian to avoid cutting confidence intervals outside the ylim
+  species_color_scale("english")+ 
+  theme_report(legend.position = "none", hjust = 0.5) +
+  theme_nature()+
+  theme(axis.text.y = element_text(size = 10, vjust = 0.5, hjust = 0.5),
+        axis.title.y = element_text(size = 11, vjust = 0.5, hjust = 0.5, angle=90, face = "bold"),
+        legend.position = "none",
+        plot.margin = margin(t = 0, b = 4, r = 7, l = 0),
+)
+```
+
+```{r fig-effects-size, fig.width=5, fig.height=5, fig.cap="Estimated shift (d) between earliest and latest DOY across the observed range of each environmental variable, based on predictions adjusted to mean covariate values. For each species, colours are scaled so the darkest shade represents the strongest shift."}
+
+effect_size_senescence <- predictions %>%
+  filter(model_name == "fixed_effects_sen"#,
+         #SPECIES_SHORT == "FS"
+         ) %>% 
+  group_by(SPECIES_SHORT, terms, Label) %>%
+  summarise(MAX_MEAN_EFFECT_SIZE = round(max(predicted) - min(predicted), 2),
+            MEAN_STD_ERROR = round(mean(std.error), 2),
+            MIN_TERM = x[which.min(predicted)],
+            MAX_TERM = x[which.max(predicted)]) %>%
+  filter(!is.na(Label),# remove excess labels from categoric variables
+         MAX_MEAN_EFFECT_SIZE > 0) %>% 
+  rename(PARAMETER = terms) %>% 
+  mutate(SPECIES = recode(SPECIES_SHORT, !!!rename_species_en)) %>%
+  ungroup() %>% 
+  select(Label, SPECIES, everything())
+
+facet_stats <- effect_size_senescence %>%
+  group_by(SPECIES) %>%
+  summarise(
+    min_val = min(MAX_MEAN_EFFECT_SIZE, na.rm = TRUE),
+    max_val = max(MAX_MEAN_EFFECT_SIZE, na.rm = TRUE),
+    mid_val = mean(MAX_MEAN_EFFECT_SIZE, na.rm = TRUE),
+    .groups = "drop")
+
+effect_scaled <- effect_size_senescence %>%
+  left_join(facet_stats, by = "SPECIES") %>%
+  mutate(scaled_effect = (MAX_MEAN_EFFECT_SIZE - min_val) / (max_val - min_val)) %>%
+  inner_join(label_table %>% select(term, param_order_c1, category), by = c("PARAMETER" = "term")) %>% # partial join with order of parameters
+  mutate(category = case_when(category == "Soil" ~ "Climate / Soil",
+                              category == "Drought" ~ "Climate / Soil",
+                              category == "Climate" ~ "Climate / Soil",
+                              category == "Phenology" ~ "Pheno",
+                              #category == "Stand structure" ~ "Stand",
+                              TRUE ~ category),
+         Label = case_when(Label %like% "Social" ~ "Social position",
+                          TRUE ~ Label),
+         order_num = case_when(PARAMETER %like% "ELEVATION" ~ 0, # define parameter order within group
+                        PARAMETER %like% "RELIEF" ~ 1,
+                        PARAMETER %like% "INCLINATION" ~ 2,
+                        PARAMETER %like% "ASPECT" ~ 3,
+                        PARAMETER %like% "SOCIAL" ~ 6,
+                        PARAMETER %like% "STAND" ~ 7,
+                        PARAMETER %like% "HEIGHT" ~ 8,
+                        PARAMETER %like% "DROUGHT" ~ 13,
+                        PARAMETER %like% "AWC" ~ 12,
+                        PARAMETER %like% "CDD" ~ 10,
+                        PARAMETER %like% "GDD" ~ 11,
+                        TRUE ~ 0),
+         PARAMETER = fct_reorder(Label, order_num),
+        category = fct_relevel(category, "Pheno", "Stand structure", "Climate / Soil", "Topography")) # order parameter groups
+
+ggplot(effect_scaled, aes(x = SPECIES, y = PARAMETER, fill = scaled_effect)) +
+  geom_tile() +
+  scale_fill_gradient2(
+    low = "#FFA54F", mid = "#FF7F24", high = "#CD661D", midpoint = 0.5, limits = c(0, 1)) +
+  geom_text(aes(label = round(MAX_MEAN_EFFECT_SIZE, 2)), size = 4, vjust = 0, colour = "#4F4F4F") +
+  xlab("") +
+  ylab("") +
+  scale_x_discrete(position = "top") +
+  facet_nested(rows = vars(category), scales = "free_y", space = "free_y", switch = "y") +
+  theme_report(legend.position = "none") +
+  theme(
+    legend.title = element_text(size = 12, face = "bold", hjust = 0.1),
+    axis.text.x = element_text(hjust = 0.5, face = "bold"),
+    strip.background = element_blank(),
+    strip.text.y.left = element_text(face = "bold", size = 10, hjust = 0.5, colour = "#757575"),
+    panel.spacing.y = unit(0.7, "lines"),
+    axis.line.y = element_line(colour = "grey", linewidth = 1.2),
+    panel.grid = element_blank()
+  )
+```
+
+1.  The DOY of leaf colouring has a significant delaying effect on the DOY of leaf unfolding of beech, but not larch or linden (@fig-coefficients). If leaf colouring was late in the previous year, leaf unfolding in the following year is also later (@fig-effects, panel leaf colouring lag). The effect is stronger than the effect of AWC (@fig-effects-size). The almost perfect overlap between the same effects of different models, indicated by almost single lines (@fig-effects), indicates that the effect size and shape of other variables is barely affected.
+2.  For beech the cAIC is notably better for models including leaf senescense. For linden, the cAIC is worse. For larch the cAIC failed due to the missing data in combination with the factors RELIEF and SOCIAL_SITUATION (@fig-selection-parameters, second row).
+3.  The RMSE is close to equal between models with and without leaf senescence and slightly better for models with the reduced data set (@fig-selection-parameters, third row).
+4.  The presence of the DOY of leaf colouring does not shift the significance or size of any effects (@fig-coefficients; @fig-effects, see changes in colour between fixed_effects_org and fixed_effects_sen). However, there are shifts in significance between the best model with the original and with the reduced data set for the linear effect of tree height in beech and the quadratic interaction between GDD and CDD for larch (@fig-coefficients). Since the only difference between these two models is the number of observations (@tbl-data), these shifts are likely induced by the missing observations, not the inclusion of leaf senescence.
+
+
+```{r save-output}
+saveRDS(senescence_models_processed[["tidy"]] %>%
+          filter(term %like% "COLOURING") %>%
+          mutate(label = label_fun_sim(term, "short"),
+                 PARAMETER = label) %>% 
+          mutate(across(where(is.numeric), ~ round(.x, 3))) %>%
+          mutate(p.value = as.character(p.value),
+                 p.value = case_when(p.value == 0.000 ~ "≤ 0.001",
+                                     TRUE ~ p.value)),
+        paste0(path_output_data, "/p_table_senescence.rds"))
+
+saveRDS(effect_size_senescence, paste0(path_own_data, "/effect_size_senescence.rds"))
+```

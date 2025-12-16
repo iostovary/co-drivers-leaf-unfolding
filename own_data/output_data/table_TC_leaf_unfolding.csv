@@ -1,0 +1,172 @@
+category,label,model_name,visual,conf.low,estimate,conf.high,std.error,statistic,p.value,term,SPECIES
+Other,Intercept,final_con_int,🡽,113,120,127,3.7,32.3,2.989999999999999e-134,(Intercept),TC
+Climate,GDD,final_con_int,🡾,-0.074,-0.0643,-0.0545,0.00498,-12.9,6.659999999999999e-34,GDD_conservative,TC
+Topography,Elevation,final_con_int,🡽,0.00999,0.0192,0.0284,0.00454,4.23,1.81e-4,TREE_ELEVATION,TC
+Climate,CWB,final_con_int,🡽,0.0147,0.0392,0.0637,0.0125,3.14,0.00179,DROUGHT,TC
+Other,sd Intercept,final_con_int,NA,4.51,5.89,7.7,NA,NA,NA,sd_(Intercept),TC
+Other,sd Residuals,final_con_int,NA,NA,6.45,NA,NA,NA,NA,sd_Observation,TC
+Other,Intercept,ref_imp_con_int,🡽,126,132,139,3.39,39.1,7.839999999999998e-168,(Intercept),TC
+Climate,GDD,ref_imp_con_int,🡾,-0.0714,-0.0499,-0.0284,0.011,-4.55,6.53e-6,GDD_conservative,TC
+Climate,CDD,ref_imp_con_int,🡽,0.0011,0.0141,0.0271,0.00664,2.12,0.0341,CDD_conservative,TC
+Climate,GDD:CDD,ref_imp_con_int,🡾,-1.33e-4,-7.8e-5,-2.26e-5,2.83e-5,-2.76,0.006,GDD_conservative:CDD_conservative,TC
+Other,sd Intercept,ref_imp_con_int,NA,6,7.74,9.99,NA,NA,NA,sd_(Intercept),TC
+Other,sd Residuals,ref_imp_con_int,NA,NA,6.44,NA,NA,NA,NA,sd_Observation,TC
+Other,Intercept,ref_imp_con_slo,🡽,133,137,141,2.06,66.6,1.2199999999999993e-281,(Intercept),TC
+Climate,GDD,ref_imp_con_slo,🡾,-0.0874,-0.0761,-0.0649,0.00574,-13.3,1.9099999999999998e-35,GDD_conservative,TC
+Other,sd Intercept,ref_imp_con_slo,NA,7,10,14.3,NA,NA,NA,sd_(Intercept),TC
+NA,NA,ref_imp_con_slo,NA,-0.921,-0.724,-0.231,NA,NA,NA,cor_GDD_conservative.(Intercept),TC
+NA,NA,ref_imp_con_slo,NA,0.00766,0.0183,0.0439,NA,NA,NA,sd_GDD_conservative,TC
+Other,sd Residuals,ref_imp_con_slo,NA,NA,6.41,NA,NA,NA,NA,sd_Observation,TC
+Other,Intercept,ref_imp_con_int_line_1,🡽,126,132,139,3.39,39.1,7.839999999999998e-168,(Intercept),TC
+Climate,CDD,ref_imp_con_int_line_1,🡽,0.0011,0.0141,0.0271,0.00664,2.12,0.0341,CDD_conservative,TC
+Climate,GDD,ref_imp_con_int_line_1,🡾,-0.0714,-0.0499,-0.0284,0.011,-4.55,6.53e-6,GDD_conservative,TC
+Climate,CDD:GDD,ref_imp_con_int_line_1,🡾,-1.33e-4,-7.8e-5,-2.26e-5,2.83e-5,-2.76,0.006,CDD_conservative:GDD_conservative,TC
+Other,sd Intercept,ref_imp_con_int_line_1,NA,6,7.74,9.99,NA,NA,NA,sd_(Intercept),TC
+Other,sd Residuals,ref_imp_con_int_line_1,NA,NA,6.44,NA,NA,NA,NA,sd_Observation,TC
+Other,Intercept,ref_imp_con_int_line_2,🡽,133,137,140,1.73,78.9,7.3e-322,(Intercept),TC
+Climate,GDD,ref_imp_con_int_line_2,🡾,-0.0822,-0.0731,-0.064,0.00465,-15.7,4.979999999999999e-47,GDD_conservative,TC
+Other,sd Intercept,ref_imp_con_int_line_2,NA,6.06,7.78,9.99,NA,NA,NA,sd_(Intercept),TC
+Other,sd Residuals,ref_imp_con_int_line_2,NA,NA,6.47,NA,NA,NA,NA,sd_Observation,TC
+Other,Intercept,ref_imp_con_int_line_3,🡽,133,138,143,2.73,50.5,1.4199999999999998e-219,(Intercept),TC
+Climate,CDD,ref_imp_con_int_line_3,🡦,-0.00823,-0.00166,0.0049,0.00335,-0.497,0.62,CDD_conservative,TC
+Climate,GDD,ref_imp_con_int_line_3,🡾,-0.0867,-0.075,-0.0633,0.00596,-12.6,1.87e-32,GDD_conservative,TC
+Other,sd Intercept,ref_imp_con_int_line_3,NA,6.11,7.87,10.1,NA,NA,NA,sd_(Intercept),TC
+Other,sd Residuals,ref_imp_con_int_line_3,NA,NA,6.46,NA,NA,NA,NA,sd_Observation,TC
+Other,Intercept,ref_imp_con_int_poly_1,🡽,117,121,124,1.87,64.6,8.749999999999996e-274,(Intercept),TC
+Climate,CDD,ref_imp_con_int_poly_1,🡦,-0.0106,-0.00391,0.0028,0.00343,-1.14,0.255,CDD_conservative,TC
+Climate,GDD linear,ref_imp_con_int_poly_1,🡾,-114,-57.2,-0.739,28.9,-1.98,0.0481,"poly(GDD_conservative, degree = 2)1",TC
+Climate,GDD quadratic,ref_imp_con_int_poly_1,🡥,-27.7,7.09,41.9,17.8,0.398,0.691,"poly(GDD_conservative, degree = 2)2",TC
+Climate,CDD:GDD linear,ref_imp_con_int_poly_1,🡾,-0.442,-0.28,-0.118,0.0829,-3.38,7.64e-4,"CDD_conservative:poly(GDD_conservative, degree = 2)1",TC
+Climate,CDD:GDD quadratic,ref_imp_con_int_poly_1,🡦,-0.185,-0.0811,0.0224,0.053,-1.53,0.126,"CDD_conservative:poly(GDD_conservative, degree = 2)2",TC
+Other,sd Intercept,ref_imp_con_int_poly_1,NA,5.96,7.7,9.94,NA,NA,NA,sd_(Intercept),TC
+Other,sd Residuals,ref_imp_con_int_poly_1,NA,NA,6.42,NA,NA,NA,NA,sd_Observation,TC
+Other,Intercept,ref_imp_con_int_poly_2,🡽,118,120,123,1.36,88.1,0,(Intercept),TC
+Climate,GDD linear,ref_imp_con_int_poly_2,🡾,-156,-139,-122,8.84,-15.7,4.0999999999999995e-47,"poly(GDD_conservative, degree = 2)1",TC
+Climate,GDD quadratic,ref_imp_con_int_poly_2,🡥,-8.71,5.34,19.4,7.17,0.744,0.457,"poly(GDD_conservative, degree = 2)2",TC
+Other,sd Intercept,ref_imp_con_int_poly_2,NA,6.03,7.75,9.95,NA,NA,NA,sd_(Intercept),TC
+Other,sd Residuals,ref_imp_con_int_poly_2,NA,NA,6.47,NA,NA,NA,NA,sd_Observation,TC
+Other,Intercept,ref_imp_con_int_poly_3,🡽,117,121,125,1.88,64.3,5.6299999999999964e-273,(Intercept),TC
+Climate,CDD,ref_imp_con_int_poly_3,🡦,-0.00886,-0.00219,0.00448,0.00341,-0.644,0.52,CDD_conservative,TC
+Climate,GDD linear,ref_imp_con_int_poly_3,🡾,-166,-144,-122,11.4,-12.6,1.31e-32,"poly(GDD_conservative, degree = 2)1",TC
+Climate,GDD quadratic,ref_imp_con_int_poly_3,🡥,-8.08,6.16,20.4,7.27,0.846,0.398,"poly(GDD_conservative, degree = 2)2",TC
+Other,sd Intercept,ref_imp_con_int_poly_3,NA,6.1,7.86,10.1,NA,NA,NA,sd_(Intercept),TC
+Other,sd Residuals,ref_imp_con_int_poly_3,NA,NA,6.46,NA,NA,NA,NA,sd_Observation,TC
+Other,Intercept,ref_true_con_int,🡽,133,137,140,1.73,78.9,7.3e-322,(Intercept),TC
+Climate,GDD,ref_true_con_int,🡾,-0.0822,-0.0731,-0.064,0.00465,-15.7,4.979999999999999e-47,GDD_conservative,TC
+Other,sd Intercept,ref_true_con_int,NA,6.06,7.78,9.99,NA,NA,NA,sd_(Intercept),TC
+Other,sd Residuals,ref_true_con_int,NA,NA,6.47,NA,NA,NA,NA,sd_Observation,TC
+Other,Intercept,ref_true_con_slo,🡽,133,137,141,2.06,66.6,1.2199999999999993e-281,(Intercept),TC
+Climate,GDD,ref_true_con_slo,🡾,-0.0874,-0.0761,-0.0649,0.00574,-13.3,1.9099999999999998e-35,GDD_conservative,TC
+Other,sd Intercept,ref_true_con_slo,NA,7,10,14.3,NA,NA,NA,sd_(Intercept),TC
+NA,NA,ref_true_con_slo,NA,-0.921,-0.724,-0.231,NA,NA,NA,cor_GDD_conservative.(Intercept),TC
+NA,NA,ref_true_con_slo,NA,0.00766,0.0183,0.0439,NA,NA,NA,sd_GDD_conservative,TC
+Other,sd Residuals,ref_true_con_slo,NA,NA,6.41,NA,NA,NA,NA,sd_Observation,TC
+Other,Intercept,temp_test_con_int,🡽,118,120,123,1.36,88.1,0,(Intercept),TC
+Climate,GDD linear,temp_test_con_int,🡾,-156,-139,-122,8.84,-15.7,4.0999999999999995e-47,"poly(GDD_conservative, degree = 2)1",TC
+Climate,GDD quadratic,temp_test_con_int,🡥,-8.71,5.34,19.4,7.17,0.744,0.457,"poly(GDD_conservative, degree = 2)2",TC
+Other,sd Intercept,temp_test_con_int,NA,6.03,7.75,9.95,NA,NA,NA,sd_(Intercept),TC
+Other,sd Residuals,temp_test_con_int,NA,NA,6.47,NA,NA,NA,NA,sd_Observation,TC
+Other,Intercept,temp_test_con_slo,🡽,118,120,123,1.35,89.3,0,(Intercept),TC
+Climate,GDD linear,temp_test_con_slo,🡾,-161,-141,-122,10.1,-13.9,1.51e-38,"poly(GDD_conservative, degree = 2)1",TC
+Climate,GDD quadratic,temp_test_con_slo,🡥,-8.73,6.68,22.1,7.86,0.849,0.396,"poly(GDD_conservative, degree = 2)2",TC
+Other,sd Intercept,temp_test_con_slo,NA,6.9,9.86,14.1,NA,NA,NA,sd_(Intercept),TC
+NA,NA,temp_test_con_slo,NA,-0.977,-0.769,0.187,NA,NA,NA,cor_GDD_conservative.(Intercept),TC
+NA,NA,temp_test_con_slo,NA,0.00291,0.0146,0.0734,NA,NA,NA,sd_GDD_conservative,TC
+Other,sd Residuals,temp_test_con_slo,NA,NA,6.43,NA,NA,NA,NA,sd_Observation,TC
+Other,Intercept,global_con,🡽,107,120,133,6.83,17.6,9.129999999999999e-56,(Intercept),TC
+Climate,GDD,global_con,🡾,-0.0656,-0.0438,-0.0219,0.0114,-3.83,1.43e-4,GDD_conservative,TC
+Climate,CDD,global_con,🡥,-0.00111,0.012,0.0251,0.00685,1.75,0.0807,CDD_conservative,TC
+Climate,CWB linear,global_con,🡽,16,37.1,58.1,11,3.37,7.97e-4,"poly(DROUGHT, degree = 2)1",TC
+Climate,CWB quadratic,global_con,🡦,-26.3,-8.35,9.56,9.37,-0.891,0.373,"poly(DROUGHT, degree = 2)2",TC
+Soil,AWC linear,global_con,🡦,-130,-34,61.9,50.1,-0.677,0.499,"poly(AWC, degree = 2)1",TC
+Soil,AWC quadratic,global_con,🡦,-79,-9.22,60.6,36.5,-0.252,0.801,"poly(AWC, degree = 2)2",TC
+Topography,Slope aspect linear,global_con,🡦,-197,-93.9,9.3,54,-1.74,0.0825,"poly(SLOPE_ASPECT_HL, degree = 2)1",TC
+Topography,Slope aspect quadratic,global_con,🡥,-20.6,97.4,215,61.7,1.58,0.115,"poly(SLOPE_ASPECT_HL, degree = 2)2",TC
+Topography,Slope inclination linear,global_con,🡦,-146,-55.4,35,47.3,-1.17,0.242,"poly(SLOPE_INCLINATION_DEG, degree = 2)1",TC
+Topography,Slope inclination quadratic,global_con,🡥,-76.5,6.52,89.6,43.5,0.15,0.881,"poly(SLOPE_INCLINATION_DEG, degree = 2)2",TC
+Topography,Relief flat,global_con,🡥,-11.1,1.06,13.2,6.07,0.174,0.863,RELIEFflat,TC
+Topography,Relief mid slope,global_con,🡥,-2.61,7.26,17.1,4.94,1.47,0.153,RELIEFmidslope,TC
+Topography,Relief slope base,global_con,🡦,-21.4,-0.74,19.9,10.3,-0.0716,0.943,RELIEFslopebaseortrough,TC
+Topography,Elevation,global_con,🡽,0.0116,0.0271,0.0426,0.00777,3.49,0.00169,TREE_ELEVATION,TC
+Stand structure,Social position group,global_con,🡦,-14.1,-4.37,5.33,4.86,-0.9,0.376,SOCIAL_SITUATIONgroup,TC
+Stand structure,Social position free standing,global_con,🡾,-22.5,-12.2,-1.92,5.16,-2.37,0.0253,SOCIAL_SITUATIONstandalone,TC
+Stand structure,Tree height linear,global_con,🡦,-385,-137,112,130,-1.05,0.293,"poly(TREE_HEIGHT, degree = 2)1",TC
+Stand structure,Tree height quadratic,global_con,🡥,-18.5,191,401,110,1.74,0.0819,"poly(TREE_HEIGHT, degree = 2)2",TC
+Stand structure,Stand height linear,global_con,🡥,-127,90.3,307,114,0.795,0.427,"poly(STAND_HEIGHT, degree = 2)1",TC
+Stand structure,Stand height quadratic,global_con,🡥,-34.4,81.1,197,60.4,1.34,0.18,"poly(STAND_HEIGHT, degree = 2)2",TC
+Climate,GDD:CDD,global_con,🡾,-1.14e-4,-5.81e-5,-2.5e-6,2.91e-5,-2,0.0463,GDD_conservative:CDD_conservative,TC
+Climate,CWB linear:AWC linear,global_con,🡥,-33.9,464,962,260,1.78,0.0754,"poly(DROUGHT, degree = 2)1:poly(AWC, degree = 2)1",TC
+Climate,CWB quadratic:AWC linear,global_con,🡥,-220,256,732,249,1.03,0.304,"poly(DROUGHT, degree = 2)2:poly(AWC, degree = 2)1",TC
+Climate,CWB linear:AWC quadratic,global_con,🡥,-200,279,758,251,1.11,0.266,"poly(DROUGHT, degree = 2)1:poly(AWC, degree = 2)2",TC
+Climate,CWB quadratic:AWC quadratic,global_con,🡥,-312,172,655,253,0.679,0.498,"poly(DROUGHT, degree = 2)2:poly(AWC, degree = 2)2",TC
+Topography,Slope aspect linear:Slope inclination linear,global_con,🡦,-4520,-1930,662,1360,-1.42,0.155,"poly(SLOPE_ASPECT_HL, degree = 2)1:poly(SLOPE_INCLINATION_DEG, degree = 2)1",TC
+Topography,Slope aspect quadratic:Slope inclination linear,global_con,🡽,440,3640,6840,1670,2.17,0.0301,"poly(SLOPE_ASPECT_HL, degree = 2)2:poly(SLOPE_INCLINATION_DEG, degree = 2)1",TC
+Topography,Slope aspect linear:Slope inclination quadratic,global_con,🡦,-2240,-382,1480,974,-0.392,0.695,"poly(SLOPE_ASPECT_HL, degree = 2)1:poly(SLOPE_INCLINATION_DEG, degree = 2)2",TC
+Topography,Slope aspect quadratic:Slope inclination quadratic,global_con,🡥,-147,2560,5270,1420,1.81,0.0712,"poly(SLOPE_ASPECT_HL, degree = 2)2:poly(SLOPE_INCLINATION_DEG, degree = 2)2",TC
+Stand structure,Tree height linear:Stand height linear,global_con,🡦,-10600,-4350,1900,3270,-1.33,0.184,"poly(TREE_HEIGHT, degree = 2)1:poly(STAND_HEIGHT, degree = 2)1",TC
+Stand structure,Tree height quadratic:Stand height linear,global_con,🡥,-4620,2890,10400,3930,0.736,0.462,"poly(TREE_HEIGHT, degree = 2)2:poly(STAND_HEIGHT, degree = 2)1",TC
+Stand structure,Tree height linear:Stand height quadratic,global_con,🡦,-10000,-2580,4840,3880,-0.664,0.507,"poly(TREE_HEIGHT, degree = 2)1:poly(STAND_HEIGHT, degree = 2)2",TC
+Stand structure,Tree height quadratic:Stand height quadratic,global_con,🡥,-1640,794,3220,1270,0.624,0.533,"poly(TREE_HEIGHT, degree = 2)2:poly(STAND_HEIGHT, degree = 2)2",TC
+Other,sd Intercept,global_con,NA,3.04,4.12,5.59,NA,NA,NA,sd_(Intercept),TC
+Other,sd Residuals,global_con,NA,NA,6.41,NA,NA,NA,NA,sd_Observation,TC
+Other,Intercept,best_con_1,🡽,109,118,126,4.29,27.5,2.1099999999999996e-108,(Intercept),TC
+Climate,CDD,best_con_1,🡥,-4.07e-4,0.0126,0.0256,0.00665,1.89,0.059,CDD_conservative,TC
+Climate,CWB linear,best_con_1,🡽,13.4,32.8,52.1,9.92,3.3,0.00101,"poly(DROUGHT, degree = 2)1",TC
+Climate,CWB quadratic,best_con_1,🡦,-29.9,-14,1.95,8.16,-1.71,0.0869,"poly(DROUGHT, degree = 2)2",TC
+Topography,Elevation,best_con_1,🡽,0.00959,0.0189,0.0282,0.0046,4.11,2.57e-4,TREE_ELEVATION,TC
+Climate,GDD,best_con_1,🡾,-0.0644,-0.0428,-0.0212,0.0111,-3.87,1.2e-4,GDD_conservative,TC
+Climate,CDD:GDD,best_con_1,🡾,-1.2e-4,-6.5e-5,-9.75e-6,2.83e-5,-2.3,0.0219,CDD_conservative:GDD_conservative,TC
+Other,sd Intercept,best_con_1,NA,4.45,5.84,7.66,NA,NA,NA,sd_(Intercept),TC
+Other,sd Residuals,best_con_1,NA,NA,6.43,NA,NA,NA,NA,sd_Observation,TC
+Other,Intercept,best_con_2,🡽,124,130,137,3.42,38.1,8.569999999999998e-163,(Intercept),TC
+Climate,CDD,best_con_2,🡽,0.00188,0.0148,0.0277,0.00661,2.24,0.0255,CDD_conservative,TC
+Climate,CWB linear,best_con_2,🡽,10.2,29.9,49.5,10.1,2.97,0.00314,"poly(DROUGHT, degree = 2)1",TC
+Climate,CWB quadratic,best_con_2,🡦,-28.2,-12.1,3.9,8.2,-1.48,0.139,"poly(DROUGHT, degree = 2)2",TC
+Climate,GDD,best_con_2,🡾,-0.0651,-0.0434,-0.0217,0.0111,-3.91,1.01e-4,GDD_conservative,TC
+Climate,CDD:GDD,best_con_2,🡾,-1.27e-4,-7.18e-5,-1.66e-5,2.83e-5,-2.54,0.0113,CDD_conservative:GDD_conservative,TC
+Other,sd Intercept,best_con_2,NA,5.65,7.32,9.5,NA,NA,NA,sd_(Intercept),TC
+Other,sd Residuals,best_con_2,NA,NA,6.43,NA,NA,NA,NA,sd_Observation,TC
+Other,Intercept,best_con_3,🡽,127,135,144,4.3,31.5,1.3499999999999995e-129,(Intercept),TC
+Climate,CDD,best_con_3,🡽,0.00161,0.0145,0.0275,0.00662,2.2,0.0285,CDD_conservative,TC
+Climate,CWB linear,best_con_3,🡽,10.2,29.8,49.5,10.1,2.97,0.00314,"poly(DROUGHT, degree = 2)1",TC
+Climate,CWB quadratic,best_con_3,🡦,-28.5,-12.4,3.57,8.2,-1.52,0.13,"poly(DROUGHT, degree = 2)2",TC
+Stand structure,Social position group,best_con_3,🡦,-12.8,-4.41,4.01,4.15,-1.06,0.297,SOCIAL_SITUATIONgroup,TC
+Stand structure,Social position free standing,best_con_3,🡾,-12.9,-6.59,-0.295,3.11,-2.12,0.0419,SOCIAL_SITUATIONstandalone,TC
+Climate,GDD,best_con_3,🡾,-0.0659,-0.0442,-0.0225,0.0111,-3.97,7.94e-5,GDD_conservative,TC
+Climate,CDD:GDD,best_con_3,🡾,-1.26e-4,-7.05e-5,-1.53e-5,2.83e-5,-2.49,0.0129,CDD_conservative:GDD_conservative,TC
+Other,sd Intercept,best_con_3,NA,5.27,6.85,8.89,NA,NA,NA,sd_(Intercept),TC
+Other,sd Residuals,best_con_3,NA,NA,6.43,NA,NA,NA,NA,sd_Observation,TC
+Other,Intercept,parsimonious_con_d4a,🡽,133,137,140,1.73,78.9,7.3e-322,(Intercept),TC
+Climate,GDD,parsimonious_con_d4a,🡾,-0.0822,-0.0731,-0.064,0.00465,-15.7,4.979999999999999e-47,GDD_conservative,TC
+Other,sd Intercept,parsimonious_con_d4a,NA,6.06,7.78,9.99,NA,NA,NA,sd_(Intercept),TC
+Other,sd Residuals,parsimonious_con_d4a,NA,NA,6.47,NA,NA,NA,NA,sd_Observation,TC
+Other,Intercept,parsimonious_con_d4b,🡽,116,123,131,3.73,33.1,4.4799999999999986e-138,(Intercept),TC
+Topography,Elevation,parsimonious_con_d4b,🡽,0.00916,0.019,0.0289,0.00485,3.92,4.35e-4,TREE_ELEVATION,TC
+Climate,GDD,parsimonious_con_d4b,🡾,-0.0793,-0.0701,-0.061,0.00467,-15,1.3599999999999999e-43,GDD_conservative,TC
+Other,sd Intercept,parsimonious_con_d4b,NA,4.89,6.34,8.23,NA,NA,NA,sd_(Intercept),TC
+Other,sd Residuals,parsimonious_con_d4b,NA,NA,6.47,NA,NA,NA,NA,sd_Observation,TC
+Other,Intercept,parsimonious_con_d4c,🡽,126,132,139,3.39,39.1,7.839999999999998e-168,(Intercept),TC
+Climate,CDD,parsimonious_con_d4c,🡽,0.0011,0.0141,0.0271,0.00664,2.12,0.0341,CDD_conservative,TC
+Climate,GDD,parsimonious_con_d4c,🡾,-0.0714,-0.0499,-0.0284,0.011,-4.55,6.53e-6,GDD_conservative,TC
+Climate,CDD:GDD,parsimonious_con_d4c,🡾,-1.33e-4,-7.8e-5,-2.26e-5,2.83e-5,-2.76,0.006,CDD_conservative:GDD_conservative,TC
+Other,sd Intercept,parsimonious_con_d4c,NA,6,7.74,9.99,NA,NA,NA,sd_(Intercept),TC
+Other,sd Residuals,parsimonious_con_d4c,NA,NA,6.44,NA,NA,NA,NA,sd_Observation,TC
+Other,Intercept,parsimonious_con_d2a,🡽,126,132,139,3.39,39.1,7.839999999999998e-168,(Intercept),TC
+Climate,CDD,parsimonious_con_d2a,🡽,0.0011,0.0141,0.0271,0.00664,2.12,0.0341,CDD_conservative,TC
+Climate,GDD,parsimonious_con_d2a,🡾,-0.0714,-0.0499,-0.0284,0.011,-4.55,6.53e-6,GDD_conservative,TC
+Climate,CDD:GDD,parsimonious_con_d2a,🡾,-1.33e-4,-7.8e-5,-2.26e-5,2.83e-5,-2.76,0.006,CDD_conservative:GDD_conservative,TC
+Other,sd Intercept,parsimonious_con_d2a,NA,6,7.74,9.99,NA,NA,NA,sd_(Intercept),TC
+Other,sd Residuals,parsimonious_con_d2a,NA,NA,6.44,NA,NA,NA,NA,sd_Observation,TC
+Other,Intercept,parsimonious_con_d2b,🡽,132,135,139,1.75,77.2,4.22e-316,(Intercept),TC
+Climate,CWB linear,parsimonious_con_d2b,🡽,12.2,31.5,50.9,9.9,3.18,0.00152,"poly(DROUGHT, degree = 2)1",TC
+Climate,CWB quadratic,parsimonious_con_d2b,🡦,-28.7,-12.7,3.34,8.18,-1.55,0.122,"poly(DROUGHT, degree = 2)2",TC
+Climate,GDD,parsimonious_con_d2b,🡾,-0.0765,-0.0666,-0.0567,0.00507,-13.1,6.35e-35,GDD_conservative,TC
+Other,sd Intercept,parsimonious_con_d2b,NA,5.79,7.46,9.59,NA,NA,NA,sd_(Intercept),TC
+Other,sd Residuals,parsimonious_con_d2b,NA,NA,6.45,NA,NA,NA,NA,sd_Observation,TC
+Other,Intercept,parsimonious_con_d2c,🡽,112,120,129,4.46,27,5.519999999999998e-106,(Intercept),TC
+Climate,CDD,parsimonious_con_d2c,🡥,-0.00111,0.012,0.025,0.00668,1.79,0.0741,CDD_conservative,TC
+Topography,Elevation,parsimonious_con_d2c,🡽,0.00856,0.0187,0.0288,0.00499,3.74,7.17e-4,TREE_ELEVATION,TC
+Climate,GDD,parsimonious_con_d2c,🡾,-0.0716,-0.0501,-0.0287,0.011,-4.57,5.88e-6,GDD_conservative,TC
+Climate,CDD:GDD,parsimonious_con_d2c,🡾,-1.28e-4,-7.22e-5,-1.68e-5,2.83e-5,-2.55,0.011,CDD_conservative:GDD_conservative,TC
+Other,sd Intercept,parsimonious_con_d2c,NA,4.95,6.43,8.34,NA,NA,NA,sd_(Intercept),TC
+Other,sd Residuals,parsimonious_con_d2c,NA,NA,6.44,NA,NA,NA,NA,sd_Observation,TC
